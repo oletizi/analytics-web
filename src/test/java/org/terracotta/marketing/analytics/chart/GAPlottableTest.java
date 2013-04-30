@@ -62,7 +62,8 @@ public class GAPlottableTest {
     assertEquals(fmt.parse("20"), plt.getMin());
 
     // check to make sure it scales the plottable data properly.
-    Data plottable = plt.getPlottableData();
+    CommonScale commonScale = new CommonScale(new GAPlottable[] {plt});
+    Data plottable = commonScale.scale(plt);
     double[] scaled = plottable.getData();
     double[] expectedScaled = new double[] { 25d, 100d, 10d };
     assertEquals(series.size(), scaled.length);

@@ -77,9 +77,9 @@ public class GAPlottable {
     return data;
   }
 
-  public Data getPlottableData() {
-    return DataUtil.scaleWithinRange(0, max.doubleValue(), data);
-  }
+//  public Data getPlottableData() {
+//    return DataUtil.scaleWithinRange(0, max.doubleValue(), data);
+//  }
 
   public List<String> getDateStrings(final SimpleDateFormat myDateFormat) {
     List<String> rv = new ArrayList<String>(dates.size());
