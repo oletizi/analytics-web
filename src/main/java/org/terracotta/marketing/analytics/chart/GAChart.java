@@ -38,27 +38,33 @@ public class GAChart {
       final GoogleAnalytics ga) throws IOException {
     this.ga = ga;
     GAPlottable plottable = fetchMetricSeries(metric, dateGrouping, dateRange);
+
     GAPlottable yoyPlottable = fetchMetricSeries(metric, dateGrouping,
         dateRange.previousYear());
-    
-    commonScale = new CommonScale(new GAPlottable[] { plottable, yoyPlottable} );
 
-    Line plot = preparePlot(plottable, new PlotConfig(Priority.HIGH, LineStyle.MEDIUM_LINE, DARKORANGE, new TextConfig(12), Shape.CIRCLE,
-        chartConfig.getLegendPrefix() + " " + dateRange, chartConfig.getLegendScale() ));
-    
-    Line yoyPlot = preparePlot(yoyPlottable, new PlotConfig(Priority.LOW, LineStyle.THIN_LINE, Color.LIGHTBLUE, new TextConfig(10),
-        Shape.DIAMOND, chartConfig.getLegendPrefix() + " " + dateRange.previousYear(), chartConfig.getLegendScale()));
+    commonScale = new CommonScale(new GAPlottable[] { plottable, yoyPlottable });
 
+    Line plot = preparePlot(plottable,
+        new PlotConfig(Priority.HIGH, LineStyle.MEDIUM_LINE, DARKORANGE,
+            new TextConfig(12), Shape.CIRCLE, chartConfig.getLegendPrefix()
+                + " " + dateRange, chartConfig.getLegendScale()));
+
+    Line yoyPlot = preparePlot(yoyPlottable,
+        new PlotConfig(Priority.LOW, LineStyle.THIN_LINE, Color.LIGHTBLUE,
+            new TextConfig(10), Shape.DIAMOND, chartConfig.getLegendPrefix()
+                + " " + dateRange.previousYear(), chartConfig.getLegendScale()));
+    
     chart = GCharts.newLineChart(plot, yoyPlot);
     chart.setSize(width, height);
-    
+
     chart.setTitle(chartConfig.getChartTitle());
     chart.setLegendPosition(chartConfig.getLegendPosition());
 
     chart.setGrid(100, 25, 5, 0);
-    
-    //AxisLabels yLabels = AxisLabelsFactory.newNumericRangeAxisLabels(0, plottable.getMax().doubleValue());
-    //chart.addYAxisLabels(yLabels);
+
+    // AxisLabels yLabels = AxisLabelsFactory.newNumericRangeAxisLabels(0,
+    // plottable.getMax().doubleValue());
+    // chart.addYAxisLabels(yLabels);
 
     AxisLabels xLabels = AxisLabelsFactory.newAxisLabels(plottable
         .getDateStrings(new SimpleDateFormat("MMM yyyy")));
@@ -69,9 +75,11 @@ public class GAChart {
     return chart.toURLString();
   }
 
-  private GAPlottable fetchMetricSeries(final Metric metric, final DateGrouping grouping, final DateRange dateRange)
+  private GAPlottable fetchMetricSeries(final Metric metric,
+      final DateGrouping grouping, final DateRange dateRange)
       throws IOException {
-    Get get = ga.createGet(dateRange.getStart(), dateRange.getEnd(), metric.toString());
+    Get get = ga.createGet(dateRange.getStart(), dateRange.getEnd(),
+        metric.toString());
     get.setDimensions(grouping.toString());
     GaData data = get.execute();
     GAPlottable plottable = new GAPlottable(data.getRows());
@@ -89,15 +97,16 @@ public class GAChart {
 
     // add marker nodes
     plot.addShapeMarkers(plotConfig.getMarkerShape(), plotConfig.getColor(), 10);
-    
+
     // add text markers
     List<? extends Number> values = plottable.getData();
 
     for (int i = 0; i < values.size(); i++) {
-      String text = nfmt.format(values.get(i).doubleValue() * plotConfig.getLegendScale());
-      Marker marker = Markers.newTextMarker(text, plotConfig.getColor(), plotConfig.getMarkerTextConfig().getSize(), plotConfig.getPriority());
+      String text = nfmt.format(values.get(i).doubleValue()
+          * plotConfig.getLegendScale());
+      Marker marker = Markers.newTextMarker(text, plotConfig.getColor(),
+          plotConfig.getMarkerTextConfig().getSize(), plotConfig.getPriority());
       plot.addMarker(marker, i);
-      //plot.addTextMarker(text, plotConfig.getColor(), plotConfig.getMarkerTextConfig().getSize(), i);
     }
     return plot;
   }
@@ -113,7 +122,7 @@ public class GAChart {
       return size;
     }
   }
-  
+
   public static class PlotConfig {
     private Color color;
     private Shape markerShape;
@@ -124,8 +133,8 @@ public class GAChart {
     private TextConfig markerTextConfig;
 
     public PlotConfig(final Priority priority, final LineStyle lineStyle,
-        final Color color, final TextConfig markerTextConfig, final Shape markerShape, final String legend,
-        double lagendScale) {
+        final Color color, final TextConfig markerTextConfig,
+        final Shape markerShape, final String legend, double lagendScale) {
       this.priority = priority;
       this.lineStyle = lineStyle;
       this.color = color;
@@ -139,15 +148,15 @@ public class GAChart {
     public Priority getPriority() {
       return priority;
     }
-    
+
     public LineStyle getLineStyle() {
       return lineStyle;
     }
-    
+
     public TextConfig getMarkerTextConfig() {
       return markerTextConfig;
     }
-    
+
     public Shape getMarkerShape() {
       return markerShape;
     }
@@ -159,7 +168,7 @@ public class GAChart {
     public String getLegend() {
       return legend;
     }
-    
+
     public double getLegendScale() {
       return legendScale;
     }
