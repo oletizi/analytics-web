@@ -1,6 +1,5 @@
 package org.terracotta.marketing.analytics.chart;
 
-import java.awt.Dimension;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;

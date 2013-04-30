@@ -24,14 +24,14 @@ public class ServiceMain implements Runnable {
   private int port;
 
   public ServiceMain() throws IOException {
-    this(9991);
+    this(9991, "localhost");
   }
   
-  public ServiceMain(int port) throws IOException {
+  public ServiceMain(int port, String hostname) throws IOException {
     this.port = port;
-    BASE_URI = UriBuilder.fromUri("http://localhost/")
+    BASE_URI = UriBuilder.fromUri("http://" + hostname + "/")
         .port(port).build();
-    logger.println("Starting web service...");
+    logger.println("Starting web service on " + hostname + "...");
     String resourcesPackage = HelloWorldResource.class.getPackage().getName();
     logger.println("Configuring resources from package: " + resourcesPackage);
     final ResourceConfig rc = new PackagesResourceConfig(resourcesPackage);
@@ -90,7 +90,11 @@ public class ServiceMain implements Runnable {
   }
 
   public static void main(final String[] args) throws Exception {
-    ServiceMain main = new ServiceMain();
+    String hostname = "localhost";
+    if (args.length > 0) {
+      hostname = args[0];
+    }
+    ServiceMain main = new ServiceMain(9991, hostname);
     main.run();
   }
 }

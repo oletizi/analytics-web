@@ -1,6 +1,5 @@
 package org.terracotta.marketing.analytics.chart;
 
-import java.awt.Dimension;
 
 import com.googlecode.charts4j.LegendPosition;
 
@@ -21,8 +20,8 @@ public class ChartConfig {
     this.legendPrefix = legendPrefix;
     this.legendScale = legendScale;
     this.legendPosition = legendPosition;
-    this.height = dimensions.height;
-    this.width = dimensions.width;
+    this.height = dimensions.getHeight();
+    this.width = dimensions.getWidth();
   }
 
   public DateRange getDateRange() {
