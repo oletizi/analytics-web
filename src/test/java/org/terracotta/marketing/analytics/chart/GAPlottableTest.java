@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +24,7 @@ public class GAPlottableTest {
     List<String> row1 = new ArrayList<String>();
     row1.add("2013");
     row1.add("01");
-    expectedDateStrings.add("2013-01");
+    expectedDateStrings.add("Jan 2013");
     value = "50";
     row1.add(value);
     expectedData.add(fmt.parse(value));
@@ -31,7 +32,7 @@ public class GAPlottableTest {
     List<String> row2 = new ArrayList<String>();
     row2.add("2013");
     row2.add("02");
-    expectedDateStrings.add("2013-02");
+    expectedDateStrings.add("Feb 2013");
     value = "200";
     row2.add(value);
     expectedData.add(fmt.parse(value));
@@ -39,7 +40,7 @@ public class GAPlottableTest {
     List<String> row3 = new ArrayList<String>();
     row3.add("2013");
     row3.add("03");
-    expectedDateStrings.add("2013-03");
+    expectedDateStrings.add("Mar 2013");
     value = "20";
     row3.add(value);
     expectedData.add(fmt.parse(value));
@@ -70,7 +71,7 @@ public class GAPlottableTest {
       assertEquals((int)expectedScaled[i], (int)scaled[i]);
     }
   
-    List<String> dateStrings = plt.getDateStrings();
+    List<String> dateStrings = plt.getDateStrings(new SimpleDateFormat("MMM yyyy"));
     assertEquals(expectedDateStrings, dateStrings);
 
   }
