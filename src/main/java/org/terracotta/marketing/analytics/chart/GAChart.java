@@ -20,10 +20,14 @@ import com.googlecode.charts4j.Shape;
 public class GAChart {
 
   private final LineChart chart;
+  private final GAPlottable primaryPlottable;
+  private final GAPlottable secondaryPlottable;
 
   private GAChart(final ChartConfig chartConfig,
       final GAPlottable primaryPlottable, final GAPlottable secondaryPlottable) {
     
+    this.primaryPlottable = primaryPlottable;
+    this.secondaryPlottable = secondaryPlottable;
     final DateRange dateRange = chartConfig.getDateRange(); 
     
     final PlotConfig primaryPlotConfig = new PlotConfig(Priority.HIGH, LineStyle.MEDIUM_LINE,
@@ -61,14 +65,12 @@ public class GAChart {
     this(chartConfig, new GAPlottableFactory(ga).newInstance(metric,
         dateGrouping, dateRange), new GAPlottableFactory(ga).newInstance(
         metric, dateGrouping, dateRange.previousYear()));
-
-    // GAPlottable plottable = pfactory.newInstance(metric, dateGrouping,
-    // dateRange);
-    // GAPlottable yoyPlottable = pfactory.newInstance(metric, dateGrouping,
-    // dateRange.previousYear());
-
   }
 
+  public GAChart groupByCalendarQuarter(final ChartConfig chartConfig) {
+    return new GAChart(chartConfig, primaryPlottable.groupByCalendarQuarter(), secondaryPlottable.groupByCalendarQuarter());
+  }
+  
   public String toURLString() {
     return chart.toURLString();
   }

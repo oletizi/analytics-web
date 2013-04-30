@@ -1,5 +1,7 @@
 package org.terracotta.marketing.analytics.chart;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.NumberFormat;
 import java.util.List;
 
@@ -14,13 +16,15 @@ import com.googlecode.charts4j.Plots;
 
 public class PlotFactory {
   private final CommonScale commonScale;
-  private final NumberFormat nfmt = NumberFormat.getIntegerInstance();
-  
+  private final NumberFormat nfmt;// = NumberFormat.getIntegerInstance();
+
   public PlotFactory(final GAPlottable[] dataSets) {
     this.commonScale = new CommonScale(dataSets);
+    this.nfmt = NumberFormat.getIntegerInstance();
   }
-  
-  public Line newLineInstance(final GAPlottable plottable, final PlotConfig plotConfig) {
+
+  public Line newLineInstance(final GAPlottable plottable,
+      final PlotConfig plotConfig) {
     Line plot = Plots.newLine(commonScale.scale(plottable));
 
     plot.setLineStyle(plotConfig.getLineStyle());
@@ -29,32 +33,44 @@ public class PlotFactory {
 
     plot.setColor(plotConfig.getColor());
 
-    // add marker nodes
-    plot.addShapeMarkers(plotConfig.getMarkerShape(), plotConfig.getColor(), 10);
-
-    // add text markers
+    // add text markers for the value of each node
     List<? extends Number> values = plottable.getData();
-
     for (int i = 0; i < values.size(); i++) {
-      String text = nfmt.format(values.get(i).doubleValue()
-          * plotConfig.getLegendScale());
+
+      double markerValue = values.get(i).doubleValue()
+          * plotConfig.getLegendScale();
+      String text = encode(nfmt.format(markerValue));
       Marker marker = Markers.newTextMarker(text, plotConfig.getColor(),
           plotConfig.getMarkerTextConfig().getSize(), plotConfig.getPriority());
       plot.addMarker(marker, i);
     }
+    // add marker nodes
+    plot.addShapeMarkers(plotConfig.getMarkerShape(), plotConfig.getColor(), 10);
     return plot;
   }
-  
+
+  private String encode(String text) {
+    try {
+      // XXX: WORKAROUND: The charting package doesn't allow commas in
+      // markers--probably because they don't work on urls... booo.
+      text = text.replaceAll(",", "");
+      return URLEncoder.encode(text, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   private static class CommonScale {
 
     private Double max;
-    
+
     public CommonScale(final GAPlottable[] dataSets) {
       for (GAPlottable series : dataSets) {
         if (max == null) {
           max = series.getMax().doubleValue();
         } else {
-          max = max > series.getMax().doubleValue() ? max : series.getMax().doubleValue();
+          max = max > series.getMax().doubleValue() ? max : series.getMax()
+              .doubleValue();
         }
       }
     }
