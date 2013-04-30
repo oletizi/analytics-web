@@ -23,6 +23,7 @@ public class GoogleAnalyticsTest {
     String dateToString = ga.dateToString(date);
     
     assertEquals(dateString, dateToString);
+
   }
 
 }

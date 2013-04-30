@@ -59,12 +59,12 @@ public class GAChart {
     chart.addXAxisLabels(xLabels);
   }
 
-  public GAChart(final Metric metric, final DateRange dateRange,
+  public GAChart(final Metric metric, final Filter filter, final DateRange dateRange,
       final DateGrouping dateGrouping, final ChartConfig chartConfig,
       final GoogleAnalytics ga) throws IOException {
-    this(chartConfig, new GAPlottableFactory(ga).newInstance(metric,
+    this(chartConfig, new GAPlottableFactory(ga).newInstance(metric, filter,
         dateGrouping, dateRange), new GAPlottableFactory(ga).newInstance(
-        metric, dateGrouping, dateRange.previousYear()));
+        metric, filter, dateGrouping, dateRange.previousYear()));
   }
 
   public GAChart groupByCalendarQuarter(final ChartConfig chartConfig) {

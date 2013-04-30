@@ -92,10 +92,27 @@ public class GoogleAnalytics {
       System.out.println();
     }
   }
+  
+  private void example3() throws IOException {
+    Get get = analytics.data().ga().get(TABLE_ID, "2013-04-01", "2013-04-30", "ga:pageviews");
+    get.setDimensions("ga:year,ga:month");
+    get.setFilters("ga:pagePath=~/licensing/bigmemorymax");
+    GaData results = get.execute();
+    for (ColumnHeaders header: results.getColumnHeaders()) {
+      System.out.printf("%30s", header.getName());
+    }
+    System.out.println();
+    for (List<String> row : results.getRows()) {
+      for (String column : row) {
+        System.out.printf("%30s", column);
+      }
+      System.out.println();
+    }
+  }
 
   public static void main(String[] args) throws GeneralSecurityException,
       IOException {
-    new GoogleAnalytics().example2();
+    new GoogleAnalytics().example3();
   }
 
   public String dateToString(Date date) {

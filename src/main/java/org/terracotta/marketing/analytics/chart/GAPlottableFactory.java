@@ -15,12 +15,15 @@ public class GAPlottableFactory {
     this.ga = ga;
   }
 
-  public GAPlottable newInstance(final Metric metric,
+  public GAPlottable newInstance(final Metric metric, Filter filter,
       final DateGrouping grouping, final DateRange dateRange)
       throws IOException {
     Get get = ga.createGet(dateRange.getStart(), dateRange.getEnd(),
         metric.toString());
     get.setDimensions(grouping.toString());
+    if (! filter.isNull()) {
+      get.setFilters(filter.toString());
+    }
     GaData data = get.execute();
     GAPlottable plottable = new GAPlottable(data.getRows());
     return plottable;
