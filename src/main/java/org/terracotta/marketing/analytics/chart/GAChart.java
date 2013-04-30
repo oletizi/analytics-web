@@ -3,14 +3,10 @@ package org.terracotta.marketing.analytics.chart;
 import static com.googlecode.charts4j.Color.DARKORANGE;
 
 import java.io.IOException;
-import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.util.List;
 
 import org.terracotta.marketing.analytics.web.GoogleAnalytics;
 
-import com.google.api.services.analytics.Analytics.Data.Ga.Get;
-import com.google.api.services.analytics.model.GaData;
 import com.googlecode.charts4j.AxisLabels;
 import com.googlecode.charts4j.AxisLabelsFactory;
 import com.googlecode.charts4j.Color;
@@ -18,38 +14,38 @@ import com.googlecode.charts4j.GCharts;
 import com.googlecode.charts4j.Line;
 import com.googlecode.charts4j.LineChart;
 import com.googlecode.charts4j.LineStyle;
-import com.googlecode.charts4j.Marker;
-import com.googlecode.charts4j.Markers;
-import com.googlecode.charts4j.Plots;
 import com.googlecode.charts4j.Priority;
 import com.googlecode.charts4j.Shape;
 
 public class GAChart {
 
-  private final GoogleAnalytics ga;
   private final int width = 750;
   private final int height = 250;
   private final LineChart chart;
-  private NumberFormat nfmt = NumberFormat.getIntegerInstance();
-  private CommonScale commonScale;
 
+
+  private GAChart(final LineChart chart) {
+    this.chart = chart;
+  }
+  
   public GAChart(final Metric metric, final DateRange dateRange,
       final DateGrouping dateGrouping, final ChartConfig chartConfig,
       final GoogleAnalytics ga) throws IOException {
-    this.ga = ga;
-    GAPlottable plottable = fetchMetricSeries(metric, dateGrouping, dateRange);
+    
+    GAPlottableFactory pfactory = new GAPlottableFactory(ga);
 
-    GAPlottable yoyPlottable = fetchMetricSeries(metric, dateGrouping,
+    GAPlottable plottable = pfactory.newInstance(metric, dateGrouping, dateRange);
+    GAPlottable yoyPlottable = pfactory.newInstance(metric, dateGrouping,
         dateRange.previousYear());
 
-    commonScale = new CommonScale(new GAPlottable[] { plottable, yoyPlottable });
-
-    Line plot = preparePlot(plottable,
+    PlotFactory plotFactory = new PlotFactory( new GAPlottable[] {plottable, yoyPlottable});
+    
+    Line plot = plotFactory.newLineInstance(plottable,
         new PlotConfig(Priority.HIGH, LineStyle.MEDIUM_LINE, DARKORANGE,
             new TextConfig(12), Shape.CIRCLE, chartConfig.getLegendPrefix()
                 + " " + dateRange, chartConfig.getLegendScale()));
 
-    Line yoyPlot = preparePlot(yoyPlottable,
+    Line yoyPlot = plotFactory.newLineInstance(yoyPlottable,
         new PlotConfig(Priority.LOW, LineStyle.THIN_LINE, Color.LIGHTBLUE,
             new TextConfig(10), Shape.DIAMOND, chartConfig.getLegendPrefix()
                 + " " + dateRange.previousYear(), chartConfig.getLegendScale()));
@@ -62,10 +58,6 @@ public class GAChart {
 
     chart.setGrid(100, 25, 5, 0);
 
-    // AxisLabels yLabels = AxisLabelsFactory.newNumericRangeAxisLabels(0,
-    // plottable.getMax().doubleValue());
-    // chart.addYAxisLabels(yLabels);
-
     AxisLabels xLabels = AxisLabelsFactory.newAxisLabels(plottable
         .getDateStrings(new SimpleDateFormat("MMM yyyy")));
     chart.addXAxisLabels(xLabels);
@@ -73,42 +65,6 @@ public class GAChart {
 
   public String toURLString() {
     return chart.toURLString();
-  }
-
-  private GAPlottable fetchMetricSeries(final Metric metric,
-      final DateGrouping grouping, final DateRange dateRange)
-      throws IOException {
-    Get get = ga.createGet(dateRange.getStart(), dateRange.getEnd(),
-        metric.toString());
-    get.setDimensions(grouping.toString());
-    GaData data = get.execute();
-    GAPlottable plottable = new GAPlottable(data.getRows());
-    return plottable;
-  }
-
-  private Line preparePlot(GAPlottable plottable, PlotConfig plotConfig) {
-    Line plot = Plots.newLine(commonScale.scale(plottable));
-
-    plot.setLineStyle(plotConfig.getLineStyle());
-    plot.setPriority(plotConfig.getPriority());
-    plot.setLegend(plotConfig.getLegend());
-
-    plot.setColor(plotConfig.getColor());
-
-    // add marker nodes
-    plot.addShapeMarkers(plotConfig.getMarkerShape(), plotConfig.getColor(), 10);
-
-    // add text markers
-    List<? extends Number> values = plottable.getData();
-
-    for (int i = 0; i < values.size(); i++) {
-      String text = nfmt.format(values.get(i).doubleValue()
-          * plotConfig.getLegendScale());
-      Marker marker = Markers.newTextMarker(text, plotConfig.getColor(),
-          plotConfig.getMarkerTextConfig().getSize(), plotConfig.getPriority());
-      plot.addMarker(marker, i);
-    }
-    return plot;
   }
 
   public static class TextConfig {

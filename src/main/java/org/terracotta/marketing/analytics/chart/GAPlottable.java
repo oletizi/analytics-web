@@ -10,9 +10,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import com.googlecode.charts4j.Data;
-import com.googlecode.charts4j.DataUtil;
-
 public class GAPlottable {
 
   private final NumberFormat fmt = NumberFormat.getInstance();
@@ -134,20 +131,18 @@ public class GAPlottable {
       cal.setTime(dates.get(i));
       int month = cal.get(Calendar.MONTH);
 
-
-
       sum += value;
-      
+
       if ((month + 1) % 3 == 0 || i + 1 == data.size()) {
         // this is the last month of the quarter or the last month in the series
         // so we have all of the data for the current quarter.
         qtrData.add(sum);
-        
+
         // Figure out which quarter it is and add it to the datestrings
         String quarterName = "";
         if (month >= 0 && month < 3) {
           quarterName = "Q1";
-        } else if ( month >= 3 && month < 6 ) {
+        } else if (month >= 3 && month < 6) {
           quarterName = "Q2";
         } else if (month >= 6 && month < 9) {
           quarterName = "Q3";
