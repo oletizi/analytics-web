@@ -90,7 +90,7 @@
       <artifactId>ehcache-ee</artifactId>
       <version>2.6.1</version>
     </dependency>
-    
+		    
     <!-- substitute this with your prefered logging service -->
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -107,29 +107,6 @@
         <version>2.14</version>
       </plugin>
       <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.3</version>
-        <configuration>
-	  <archive>
-	    <manifest>
-              <mainClass>org.terracotta.marketing.phonehome.analytics.QueryMain</mainClass>
-            </manifest>
-          </archive>
-          <descriptorRefs>
-            <descriptorRef>jar-with-dependencies</descriptorRef>
-          </descriptorRefs>
-        </configuration>
-        <executions>
-          <execution>
-            <id>make-assembly</id>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>2.5.1</version>
@@ -138,9 +115,42 @@
           <target>1.7</target>
         </configuration>
       </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-shade-plugin</artifactId>
+            <version>2.0</version>
+            <executions>
+                <execution>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>shade</goal>
+                    </goals>
+                    <configuration>
+                        <transformers>
+                          <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  				<mainClass>org.terracotta.marketing.analytics.service.ServiceMain</mainClass>
+                				</transformer>
+                        <!--  use transformer to handle merge of META-INF/services - see http://java.net/jira/browse/JERSEY-440?focusedCommentId=14822&page=com.atlassian.jira.plugin.system.issuetabpanels%3Acomment-tabpanel#action_14822 -->
+                            <transformer
+                                implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                        </transformers> 
+                        <filters>
+                            <!--  filter to address "Invalid signature file" issue - see http://stackoverflow.com/a/6743609/589215-->
+                            <filter>
+                                <artifact>*:*</artifact>
+                                <excludes>
+                                    <exclude>META-INF/*.SF</exclude>
+                                    <exclude>META-INF/*.DSA</exclude>
+                                    <exclude>META-INF/*.RSA</exclude>
+                                </excludes>
+                            </filter>
+                        </filters>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
     </plugins>
   </build>
-  
   <repositories>
     <repository>
       <snapshots>

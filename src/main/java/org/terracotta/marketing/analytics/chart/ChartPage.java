@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.security.GeneralSecurityException;
 import java.text.DateFormat;
@@ -73,11 +74,14 @@ public class ChartPage {
     return "<p><img src=\"" + chart.toURLString() + "\"/></p>";
   }
 
-  private void render(final String path) throws IOException {
-    FileOutputStream fout = new FileOutputStream(path);
+  public void render(final String path) throws IOException {
+    render(new FileOutputStream(path));
+  }
+  
+  public void render(final OutputStream output) throws IOException {
     out.flush();
     buf.flush();
-    buf.writeTo(fout);
+    buf.writeTo(output);
   }
 
   public static void main(String[] args) throws IOException,
