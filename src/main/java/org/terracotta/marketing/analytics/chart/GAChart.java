@@ -19,48 +19,54 @@ import com.googlecode.charts4j.Shape;
 
 public class GAChart {
 
-  private final int width = 750;
-  private final int height = 250;
   private final LineChart chart;
 
-
-  private GAChart(final LineChart chart) {
-    this.chart = chart;
-  }
-  
-  public GAChart(final Metric metric, final DateRange dateRange,
-      final DateGrouping dateGrouping, final ChartConfig chartConfig,
-      final GoogleAnalytics ga) throws IOException {
+  private GAChart(final ChartConfig chartConfig,
+      final GAPlottable primaryPlottable, final GAPlottable secondaryPlottable) {
     
-    GAPlottableFactory pfactory = new GAPlottableFactory(ga);
-
-    GAPlottable plottable = pfactory.newInstance(metric, dateGrouping, dateRange);
-    GAPlottable yoyPlottable = pfactory.newInstance(metric, dateGrouping,
-        dateRange.previousYear());
-
-    PlotFactory plotFactory = new PlotFactory( new GAPlottable[] {plottable, yoyPlottable});
+    final DateRange dateRange = chartConfig.getDateRange(); 
     
-    Line plot = plotFactory.newLineInstance(plottable,
-        new PlotConfig(Priority.HIGH, LineStyle.MEDIUM_LINE, DARKORANGE,
-            new TextConfig(12), Shape.CIRCLE, chartConfig.getLegendPrefix()
-                + " " + dateRange, chartConfig.getLegendScale()));
-
-    Line yoyPlot = plotFactory.newLineInstance(yoyPlottable,
-        new PlotConfig(Priority.LOW, LineStyle.THIN_LINE, Color.LIGHTBLUE,
-            new TextConfig(10), Shape.DIAMOND, chartConfig.getLegendPrefix()
-                + " " + dateRange.previousYear(), chartConfig.getLegendScale()));
+    final PlotConfig primaryPlotConfig = new PlotConfig(Priority.HIGH, LineStyle.MEDIUM_LINE,
+        DARKORANGE, new TextConfig(12), Shape.CIRCLE,
+        chartConfig.getLegendPrefix() + " " + dateRange,
+        chartConfig.getLegendScale());
     
-    chart = GCharts.newLineChart(plot, yoyPlot);
-    chart.setSize(width, height);
+    final PlotConfig secondaryPlotConfig = new PlotConfig(Priority.LOW, LineStyle.THIN_LINE, Color.LIGHTBLUE,
+        new TextConfig(10), Shape.DIAMOND, chartConfig
+        .getLegendPrefix() + " " + dateRange.previousYear(),
+        chartConfig.getLegendScale());
+    
+    final PlotFactory plotFactory = new PlotFactory(new GAPlottable[] { primaryPlottable,
+        secondaryPlottable });
+
+    final Line primaryPlot = plotFactory.newLineInstance(primaryPlottable, primaryPlotConfig);
+
+    final Line secondaryPlot = plotFactory.newLineInstance(secondaryPlottable, secondaryPlotConfig);
+
+    chart = GCharts.newLineChart(primaryPlot, secondaryPlot);
+    chart.setSize(chartConfig.getWidth(), chartConfig.getHeight());
 
     chart.setTitle(chartConfig.getChartTitle());
     chart.setLegendPosition(chartConfig.getLegendPosition());
 
     chart.setGrid(100, 25, 5, 0);
 
-    AxisLabels xLabels = AxisLabelsFactory.newAxisLabels(plottable
-        .getDateStrings(new SimpleDateFormat("MMM yyyy")));
+    AxisLabels xLabels = AxisLabelsFactory.newAxisLabels(primaryPlottable.getDateStrings(new SimpleDateFormat("MMM yyyy")));
     chart.addXAxisLabels(xLabels);
+  }
+
+  public GAChart(final Metric metric, final DateRange dateRange,
+      final DateGrouping dateGrouping, final ChartConfig chartConfig,
+      final GoogleAnalytics ga) throws IOException {
+    this(chartConfig, new GAPlottableFactory(ga).newInstance(metric,
+        dateGrouping, dateRange), new GAPlottableFactory(ga).newInstance(
+        metric, dateGrouping, dateRange.previousYear()));
+
+    // GAPlottable plottable = pfactory.newInstance(metric, dateGrouping,
+    // dateRange);
+    // GAPlottable yoyPlottable = pfactory.newInstance(metric, dateGrouping,
+    // dateRange.previousYear());
+
   }
 
   public String toURLString() {

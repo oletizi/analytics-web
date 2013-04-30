@@ -1,5 +1,6 @@
 package org.terracotta.marketing.analytics.chart;
 
+import java.awt.Dimension;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -27,10 +28,12 @@ public class ChartPage {
     DateRange dateRange = new DateRange(dfmt.parse("2012-05-01"), dfmt.parse("2013-04-30"));
     DateGrouping dateGrouping = DateGrouping.Monthly;
     
-    ChartConfig chartConfig = new ChartConfig("Monthly Pageviews", "Pageviews (thousands)", 0.001, LegendPosition.BOTTOM);
+    final Dimension dim = new Dimension(750, 300);
+    
+    ChartConfig chartConfig = new ChartConfig(dateRange, "Monthly Pageviews", dim, "Pageviews (thousands)", 0.001, LegendPosition.BOTTOM);
     GAChart pageViewChart = new GAChart(metric, dateRange, dateGrouping, chartConfig, ga);
     
-    chartConfig = new ChartConfig("Monthly Unique Visitors", "Unique Visitors (thousands)", 0.001, LegendPosition.BOTTOM);
+    chartConfig = new ChartConfig(dateRange, "Monthly Unique Visitors", dim, "Unique Visitors (thousands)", 0.001, LegendPosition.BOTTOM);
     GAChart visitors = new GAChart(Metric.Visitors, dateRange, dateGrouping, chartConfig, ga);
     
     out.println("<html><body>");
